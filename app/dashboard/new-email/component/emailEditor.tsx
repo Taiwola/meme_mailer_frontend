@@ -52,8 +52,8 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
     const newsletterId = localStorage.getItem('newsletterId');
     
     if (!newsletterId || !token) {
-      toast.error("Authorization token or newsletter ID missing.");
-      return null;
+      setLoading(false);
+      return;
     }
 
     const res = await fetch(`http://localhost:5000/api/newsletter/${newsletterId}`, {
@@ -87,6 +87,42 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
     },
   });
 
+  const sendMail = async (content:any) => {
+
+    const token = localStorage.getItem("token");
+    const newsletterId = localStorage.getItem('newsletterId');
+    
+    if (!newsletterId || !token) {
+      toast.error("Error sending mail, newsletter needs to be saved or user needs to be logged in")
+      return null;
+    }
+    const option = {
+      content: JSON.stringify(content)
+    }
+    try {
+      const res = await fetch(`http://localhost:5000/api/mail/${newsletterId}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(option),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        toast.error(errorData.message || res.statusText);
+      } else {
+        router.replace("/dashboard/write");
+        toast.success("Mail sent successfully");
+      }
+    } catch (error) {
+      toast.error("An error occurred while sending the mail.");
+      console.error("Error sending mail:", error);
+    }
+  }
+
+
   // Function to export HTML and JSON from the editor
   const exportHtml = () => {
     const unlayer = emailEditorRef.current?.editor;
@@ -96,6 +132,7 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
       console.log("Exported HTML:", html);
       console.log("Exported Design JSON:", design);
       setJsonData(design); // Save design JSON to state if needed
+      sendMail(design);
     });
   };
 
@@ -119,6 +156,7 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
       };
   
       const token = localStorage.getItem("token");
+      const newsletterId = localStorage.getItem('newsletterId');
   
       if (!token) {
         toast.error("No authorization token found.");
@@ -126,7 +164,14 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
       }
   
       try {
-        const res = await fetch(`http://localhost:5000/api/newsletter`, {
+        const res = update ? await fetch(`http://localhost:5000/api/newsletter/${newsletterId}`, {
+          method: update ? "PATCH" : "POST", // Use PUT for updates
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(option),
+        }) :  await fetch(`http://localhost:5000/api/newsletter`, {
           method: update ? "PATCH" : "POST", // Use PUT for updates
           headers: {
             Authorization: `Bearer ${token}`,
@@ -153,7 +198,7 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
   const handleSaveClick = () => saveDraft(false); // Save Draft
   const handleUpdateClick = () => saveDraft(true); // Update Draft
 
-  if (isLoading || loading) return <div>Loading...</div>; // Render loading state
+ if (isLoading || loading) return <div>Loading...</div>; // Render loading state
 
   return (
     <div>

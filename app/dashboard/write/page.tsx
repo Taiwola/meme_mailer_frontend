@@ -30,7 +30,32 @@ export default function page({}: Props) {
   }
 
   const deleteHandler = async (id: string) => {
-    console.log(id);
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("No authorization token found.");
+      return;
+    }
+    try {
+      const res = await fetch(`http://localhost:5000/api/newsletter/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      });
+  
+      if (!res.ok) {
+        const errorData = await res.json();
+        toast.error(errorData.message || res.statusText);
+      } else {
+        toast.success("Draft deleted successfully");
+        window.location.reload();
+      } 
+    } catch (error) {
+      toast.error("An error occurred while deleting the draft.");
+        console.error("delete draft error:", error);
+    }
   }
 
   return (
@@ -54,7 +79,7 @@ export default function page({}: Props) {
               <span className='absolute block z-20 right-2 top-2 text-2xl cursor-pointer'
               onClick={() => deleteHandler(i?._id)}
               >
-                <Trash2 />
+                <Trash2  className='text-red-600'/>
               </span>
               <h5 className='text-xl text-center cursor-pointer'
               onClick={() => {

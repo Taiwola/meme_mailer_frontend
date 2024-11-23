@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import {LayoutDashboardIcon, Pen, TrendingUp, Users, LogOutIcon,SubscriptIcon, Satellite} from "lucide-react";
+import {LayoutDashboardIcon, Pen, TrendingUp, Users, LogOutIcon, Satellite} from "lucide-react";
 import { Icons } from "@/app/component/icons";
 import { useAuth } from '@/app/hook/use-auth';
 import {usePathname} from "next/navigation";
@@ -33,15 +33,19 @@ const sidebarItems = [
     ]
 
 
-const sideBottomItems = [
-    {
-        url: "/subscribe",
-        icon: <Satellite />,
-        name: "Visit site"
-    }
-]
+
 
 function DashboardItems({bottomContent}: Props) {
+    const email = localStorage.getItem('useremail');
+    const sideBottomItems = [
+        {
+            url: `/subscribe?email=${email}`,
+            icon: <Satellite />,
+            name: "Visit site"
+        }
+    ]
+
+
     const pathName = usePathname()
     const [activeRoute, setActiveRoute] = useState("");
     useEffect(() => {

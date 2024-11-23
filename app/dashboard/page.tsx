@@ -8,7 +8,9 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 
 export default function page() {
+  const username = localStorage.getItem('username');
   const [copied, setCopied] = useState(false);
+  const email = localStorage.getItem("useremail");
 
   const handleCopyLink = (link:string) => {
     //const link = 'http://localhost.com/subscribe?email=example@gmail.com';
@@ -21,7 +23,7 @@ export default function page() {
   return (
     <div className='p-5 w-full bg-[#f9fafb]'>
       <h1 className='text-2xl text-surface-900 font-medium'>
-        Hi seun 👋
+        Hi {username} 👋
       </h1>
       <p className='text-surface-900 text-opacity-70 text-sm'>
         Here's how your publication is doing
@@ -52,7 +54,7 @@ export default function page() {
               <h4 className='font-medium'>Home Page</h4>
               <div
       className="w-full px-2 my-1 h-[38px] bg-transparent border rounded-lg relative flex items-center cursor-pointer"
-      onClick={() => handleCopyLink(" http://localhost.com/subscribe?email=example@gmail.com")}
+      onClick={() => handleCopyLink( `${process.env.NEXT_PUBLIC_WEBSITE_URL}/subscribe?email=${email}`)}
     >
       <small
         className={`text-sm overflow-hidden overflow-ellipsis whitespace-pre ${
@@ -60,7 +62,7 @@ export default function page() {
         }`}
         style={{ maxWidth: '100%' }}
       >
-        http://localhost.com/subscribe?email=example@gmail.com
+        {process.env.NEXT_PUBLIC_WEBSITE_URL}/subscribe?email={email}
       </small>
       <div className='absolute h-[38px] w-[90px] rounded-r-lg bg-blue-200 flex right-0 items-center justify-center'>
         <span className='text-lg'><Copy /></span>

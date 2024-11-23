@@ -34,6 +34,7 @@ const Page = () => {
             localStorage.setItem('isAuthenticated', "true");
             localStorage.setItem("userId", data.user._id);
             localStorage.setItem("username", data.user.name);
+            localStorage.setItem("useremail", data.user.email);
             toast.success("Login was successfull");
             router.push('/dashboard')
         },

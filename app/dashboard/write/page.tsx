@@ -2,21 +2,25 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash2, X } from 'lucide-react';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useQuery } from 'react-query';
-import { getEmails } from '@/app/api/newsletter/route';
-import Link from 'next/link';
+import { useAuth } from '@/app/hook/use-auth';
 
-type Props = {}
 
-export default function page({}: Props) {
+type Email = {
+  _id: string;
+  title: string;
+};
+export default function Page() {
   const [emailTitle, setEmailTitle] = useState("");
+  const [token, setToken] = useState("");
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const {getEmails} = useAuth();
 
-  const {data, isError, isLoading} = useQuery("getEmails", getEmails, {
+  const {data} = useQuery("getEmails", getEmails, {
     retry: false
   })
 
@@ -29,15 +33,20 @@ export default function page({}: Props) {
     }
   }
 
+  useEffect(() => {
+    const t = localStorage.getItem("token");
+    setToken(t as string);
+  }, [token])
+
   const deleteHandler = async (id: string) => {
-    const token = localStorage.getItem("token");
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     if (!token) {
       toast.error("No authorization token found.");
       return;
     }
     try {
-      const res = await fetch(`http://localhost:5000/api/newsletter/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/newsletter/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -71,7 +80,7 @@ export default function page({}: Props) {
 
       {/* fetch all saved emails */}
       {
-        data && data?.email.map((i:any) => {
+        data && data?.email.map((i:Email) => {
           const formatedTitle = i?.title?.replace(/\s+/g, '-').replace(/&/g, "-");
           return (
             <div className='w-[200px] h-[200px] relative bg-slate-50 flex flex-col justify-center items-center'

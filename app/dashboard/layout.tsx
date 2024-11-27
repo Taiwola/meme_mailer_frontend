@@ -1,12 +1,11 @@
 "use client"
 import React from 'react'
-import { Providers, useAppContext } from '../utils/providers';
+import { Providers } from '../utils/providers';
 import DashboardNavbar from './component/dashboardNavbar';
 import {useRouter} from "next/navigation";
 import toast from 'react-hot-toast';
 import {QueryClient, QueryClientProvider} from "react-query";
 
-type Props = {}
   
 
 export default function DashboardLayout({
@@ -25,6 +24,10 @@ export default function DashboardLayout({
       toast.error("User not signed in!");
       router.replace("/sign-in");
     }
+
+    // TODO
+    // check if token hasn't expired
+    // if its has, log the user out
 
     if (!userId) {
       toast.error("User not signed in!");

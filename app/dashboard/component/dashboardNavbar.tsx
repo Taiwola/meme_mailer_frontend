@@ -4,9 +4,7 @@ import DashboardItems from './dashboardItems';
 import UserSubscribers from './userSubscribers';
 import { Icons } from "@/app/component/icons";
 
-type Props = {}
-
-export default function DashboardNavbar({}: Props) {
+export default function DashboardNavbar() {
   return (
     <div className='w-[290px]'>
          <div className='p-2'>

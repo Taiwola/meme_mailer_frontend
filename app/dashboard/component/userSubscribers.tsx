@@ -3,33 +3,38 @@ import React, { useEffect, useState } from 'react';
 import { CloudLightning } from 'lucide-react';
 import { Box, Slider, Typography } from '@mui/material';
 
-type Props = {};
 
-// Simulate fetching value from a database
-const fetchSubscriberCount = async (): Promise<number> => {
-  const token = localStorage.get("token");
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  const res = await fetch(`${API_BASE_URL}/api/analytics`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`, // Add token for authorization
-      "Content-Type": "application/json", 
-    },
-  });
+type subscriberDatType = {
+  month: string, 
+  count: number 
+}
 
-  const response = await res.json();
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || res.statusText);
-  }
 
-  console.log("from user subscribers: ",response);
-
-  return new Promise((resolve) => setTimeout(() => resolve(500), 1000));
-};
-
-function UserSubscribers({}: Props) {
+function UserSubscribers() {
+  const fetchSubscriberCount = async (): Promise<number> => {
+    const token = localStorage.getItem("token");
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  
+    const res = await fetch(`${API_BASE_URL}/api/analytics`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`, // Add token for authorization
+        "Content-Type": "application/json", 
+      },
+    });
+  
+    const response = await res.json();
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || res.statusText);
+    }
+  
+   const c:subscriberDatType[] = response.data.last7months;
+   const count = c.reduce((a,b) => a + b.count, 0);
+  
+    return count;
+  };
   const [value, setValue] = useState<number>(0);
 
   useEffect(() => {
@@ -72,7 +77,7 @@ function UserSubscribers({}: Props) {
           max={2500}
           sx={{
             color: '#831745',
-            height: 8,
+            height: 5,
             '& .MuiSlider-thumb': {
               height: 24,
               width: 24,

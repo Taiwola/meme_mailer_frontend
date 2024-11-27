@@ -1,9 +1,8 @@
 import React from 'react'
 import SubscriberData from './component/subscriberData';
 
-type Props = {}
 
-export default function page({}: Props) {
+export default function Page() {
   return (
     <div className='w-full p-5 h-screen overflow-hidden'>
         <h1 className='text-2xl font-medium'>

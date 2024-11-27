@@ -9,6 +9,8 @@ import { Toaster } from 'react-hot-toast';
 interface AuthState {
     user: {
         _id: string,
+        name?: string,
+        email?: string
     } | null; // Allow user to be either an object or null
     isAuthenticated: boolean;
 }
@@ -43,8 +45,9 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
         const storedToken = localStorage.getItem('token');
         const storedIsAuthenticated = localStorage.getItem('isAuthenticated') === "true";
         const storedUser = localStorage.getItem('userId');
+        const storedEmail = localStorage.getItem("useremail");
         if (storedToken && storedIsAuthenticated && storedUser) {
-            setAuthState({ user: { _id: storedUser }, isAuthenticated: true });
+            setAuthState({ user: { _id: storedUser, email: storedEmail as string }, isAuthenticated: true });
             setToken(storedToken);
         }
     }, []);

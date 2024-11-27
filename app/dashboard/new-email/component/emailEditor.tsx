@@ -1,23 +1,48 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import EmailEditor, { EditorRef, EmailEditorProps } from "react-email-editor";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useQuery } from "react-query";
 
-// Define the type for fetching email data (Optional)
-type EmailData = {
-  email: {
-    content: string;
-  };
-};
+interface BodyItem {
+  id: string | undefined;
+  cells: number[];
+  columns: {
+    contents: {
+      type: string;
+      values: {
+        text: string;
+        textColor: string;
+        fontSize: number;
+        lineHeight: number;
+        textAlign: string;
+      };
+    }[]; // Array of contents
+  }[]; // Array of columns
+}
 
-const initialTemplate = {
+interface TemplateBody {
+  id: string | undefined;  // Make id optional here, but include it
+  rows: BodyItem[];  // Array of BodyItem objects
+  headers: BodyItem[];  // Array of BodyItem objects
+  footers: BodyItem[];  // Array of BodyItem objects
+  values: Record<string, unknown>;  // A dictionary of dynamic values
+}
+
+interface Template {
+  counters: Record<string, number>;
+  body: TemplateBody;  // The body now contains TemplateBody with id
+}
+
+const initialTemplate: Template = {
   counters: {},
   body: {
+    id: "1", // Optional id within body, can be set to string or undefined
     rows: [
       {
+        id: "row1",
         cells: [1],
         columns: [
           {
@@ -37,11 +62,20 @@ const initialTemplate = {
         ],
       },
     ],
+    headers: [],  // Provide an empty array or specific header items
+    footers: [],  // Provide an empty array or specific footer items
+    values: {},   // Add dynamic values if required
   },
 };
 
+
+
+
+
+
+
 export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) {
-  const [jsonData, setJsonData] = useState<any | null>(initialTemplate);
+  const [jsonData, setJsonData] = useState<Template>(initialTemplate);
   const [loading, setLoading] = useState(true); // Start loading as true by default
   const emailEditorRef = useRef<EditorRef>(null);
   const router = useRouter();
@@ -50,13 +84,14 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
   const fetchEmail = async () => {
     const token = localStorage.getItem("token");
     const newsletterId = localStorage.getItem('newsletterId');
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     
     if (!newsletterId || !token) {
       setLoading(false);
       return;
     }
 
-    const res = await fetch(`http://localhost:5000/api/newsletter/${newsletterId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/newsletter/${newsletterId}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -74,7 +109,7 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
   };
 
   // Use React Query's useQuery hook to fetch the email data
-  const { data, error, isLoading } = useQuery("fetchEmail", fetchEmail, {
+  const {isLoading } = useQuery("fetchEmail", fetchEmail, {
     onSuccess: (data) => {
       if (data) {
         setJsonData(JSON.parse(data)); // Update the template with the fetched design
@@ -87,10 +122,11 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
     },
   });
 
-  const sendMail = async (content:any) => {
+  const sendMail = async (content: typeof initialTemplate) => {
 
     const token = localStorage.getItem("token");
     const newsletterId = localStorage.getItem('newsletterId');
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     
     if (!newsletterId || !token) {
       toast.error("Error sending mail, newsletter needs to be saved or user needs to be logged in")
@@ -100,7 +136,7 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
       content: JSON.stringify(content)
     }
     try {
-      const res = await fetch(`http://localhost:5000/api/mail/${newsletterId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/mail/${newsletterId}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -114,6 +150,7 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
         toast.error(errorData.message || res.statusText);
       } else {
         router.replace("/dashboard/write");
+        localStorage.removeItem("newsletterId")
         toast.success("Mail sent successfully");
       }
     } catch (error) {
@@ -140,8 +177,10 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
     console.log("Editor is ready!");
     const unlayer = emailEditorRef.current?.editor;
 
-    // Load the initial template
-    unlayer?.loadDesign(jsonData);
+ // @ts-expect-error: Suppress type error due to dynamic content loading
+// eslint-disable-next-line: Ignore ESLint check for this line
+unlayer?.loadDesign(jsonData);
+
   };
 
   // Function to save the draft
@@ -157,6 +196,7 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
   
       const token = localStorage.getItem("token");
       const newsletterId = localStorage.getItem('newsletterId');
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   
       if (!token) {
         toast.error("No authorization token found.");
@@ -164,7 +204,7 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
       }
   
       try {
-        const res = update ? await fetch(`http://localhost:5000/api/newsletter/${newsletterId}`, {
+        const res = update ? await fetch(`${API_BASE_URL}/api/newsletter/${newsletterId}`, {
           method: update ? "PATCH" : "POST", // Use PUT for updates
           headers: {
             Authorization: `Bearer ${token}`,
@@ -185,6 +225,7 @@ export default function Emaileditor({ subjectTitle }: { subjectTitle: string }) 
           toast.error(errorData.message || res.statusText);
         } else {
           router.replace("/dashboard/write");
+          localStorage.removeItem("newsletterId")
           toast.success(update ? "Draft updated successfully" : "Draft saved successfully");
         }
       } catch (error) {

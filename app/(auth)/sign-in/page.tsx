@@ -9,13 +9,14 @@ import Link from "next/link";
 import {useForm} from "react-hook-form";
 import {TAuthcredentialsValidator, AuthCredentialsValidator} from "@/lib/validators/account-credentials"
 import {toast} from "react-hot-toast";
-import {useRouter, useSearchParams} from 'next/navigation'
+import {useRouter} from 'next/navigation'
 import { zodResolver } from "@hookform/resolvers/zod";
 import {useMutation}  from "@tanstack/react-query";
-import { loginIn } from "@/app/api/auth/route";
 import { useAppContext } from "@/app/utils/providers";
+import { useAuth } from "@/app/hook/use-auth";
 
 const Page = () => {
+    const {loginIn} = useAuth();
 
     const isError = false;
     const router = useRouter();
@@ -27,7 +28,7 @@ const Page = () => {
 
     const mutate = useMutation({
         mutationFn: loginIn,
-        onSuccess: async (data: any) => {
+        onSuccess: async (data) => {
             setAuthState({user: data.user, isAuthenticated: true});
             setToken(data.token);
             localStorage.setItem('token',data.token);
@@ -38,7 +39,7 @@ const Page = () => {
             toast.success("Login was successfull");
             router.push('/dashboard')
         },
-        onError: async (error: any) => {
+        onError: async (error) => {
             toast.error(`Login failed: ${error.message || 'An error occurred'}`);
             console.error('Error during login:', error);
         }

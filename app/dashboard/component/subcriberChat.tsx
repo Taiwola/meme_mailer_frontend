@@ -1,6 +1,5 @@
 "use client"
-import { count } from 'console';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     ResponsiveContainer,
     LineChart,
@@ -11,61 +10,39 @@ import {
     Line
 } from "recharts";
 
-type Props = {}
 
-const data = [
-    {
-        month: "Jan 2024",
-        count: 2000,
-    },
-    {
-        month: "Feb 2024",
-        count: 1200,
-    },
-    {
-        month: "March 2024",
-        count: 2342,
-    },
-    {
-        month: "April 2024",
-        count: 900,
-    },
-    {
-        month: "May 2024",
-        count: 3000,
-    },
-    {
-        month: "June 2024",
-        count: 1000,
-    },
-    {
-        month: "July 2024",
-        count: 800,
-    },
-    {
-        month: "Aug 2024",
-        count: 1500,
-    },
-    {
-        month: "Sept 2024",
-        count: 1400,
-    },
-    {
-        month: "Oct 2024",
-        count: 1600,
-    },
-    {
-        month: "Nov 2024",
-        count: 1600,
-    },
-    {
-        month: "Dec 2024",
-        count: 1600,
-    },
-]
 
-export default function SubcriberChat({}: Props) {
-    const [subscribersData, setSubscribersData] = useState<any>([]);
+export default function SubcriberChat() {
+    const [subscribersData, setSubscribersData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const fetchSubscriberCount = async (): Promise<[]> => {
+        const token = localStorage.getItem("token");
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+      
+        const res = await fetch(`${API_BASE_URL}/api/analytics`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`, // Add token for authorization
+            "Content-Type": "application/json", 
+          },
+        });
+      
+        const response = await res.json();
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || res.statusText);
+        }
+        return response.data.last7months
+      };
+
+      useEffect(() => {
+        const fetch = async () => {
+           const last7months = await fetchSubscriberCount();
+           setSubscribersData(last7months);
+           setLoading(false);
+        };
+        fetch();
+      }, [])
 
   return (
     <div className='my-5 p-5 border rounded bg-white w-full md:h-[55vh] xl:h-[60vh]'>
@@ -79,11 +56,15 @@ export default function SubcriberChat({}: Props) {
                 <span className='pl-2 text-sm opacity-[.7]'>Subscribers</span>
             </div>
         </div>
-        <ResponsiveContainer width="100%" height={"85%"} className={"mt-5"}>
+        {loading ? (
+            <div className='h-[85%] flex items-center justify-center min-w-full'>
+                <h5>Loading......</h5>
+            </div>
+        ) :(<ResponsiveContainer width="100%" height={"85%"} className={"mt-5"}>
             <LineChart
             width={500}
             height={200}
-            data={data}
+            data={subscribersData}
             syncId={"anyId"}
             margin={{
                 top: 10,
@@ -103,7 +84,7 @@ export default function SubcriberChat({}: Props) {
                 fill='#EB4898'
                 />
             </LineChart>
-        </ResponsiveContainer>
+        </ResponsiveContainer>)}
     </div> 
   )
 }

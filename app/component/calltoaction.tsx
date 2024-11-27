@@ -2,7 +2,6 @@ import React from 'react'
 import MaxWidthWrapper from './maxwidthwrapper';
 import { ArrowDownToLine, CheckCircle, Leaf } from 'lucide-react';
 
-type Props = {}
 
 const features = [
     {
@@ -23,7 +22,7 @@ const features = [
 ]
 
 
-export default function CallToAction({}: Props) {
+export default function CallToAction() {
   return (
     <section className="border-t border-gray-200 bg-gray-50">
     <MaxWidthWrapper className="py-20">

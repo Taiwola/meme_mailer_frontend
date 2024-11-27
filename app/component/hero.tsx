@@ -3,9 +3,8 @@ import MaxWidthWrapper from './maxwidthwrapper'
 import Link from 'next/link'
 import { Button, buttonVariants } from '@/components/ui/button'
 
-type Props = {}
 
-export default function Hero({}: Props) {
+export default function Hero() {
   return (
     <MaxWidthWrapper>
     <div className="py-20 mx-auto text-center flex flex-col items-center max-w-3xl">

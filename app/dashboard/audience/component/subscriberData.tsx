@@ -4,6 +4,7 @@ import { useQuery } from 'react-query';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { format } from 'timeago.js';
 import { Box, Typography, CircularProgress } from '@mui/material';
+import { useAuth } from '@/app/hook/use-auth';
 
 type Subscriber = {
   _id: string;
@@ -13,27 +14,11 @@ type Subscriber = {
   status?: string;
 };
 
-const getAllSubscriber = async () => {
-  const token = localStorage.getItem("token");
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  const res = await fetch(`${API_BASE_URL}/api/subscriber`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || res.statusText);
-  }
-
-  return data.subscriber;
-};
 
 export default function SubscriberData() {
+  const {getAllSubscriber} = useAuth();
+  
   const { data, isError, isLoading } = useQuery<Subscriber[]>("getAllSubscribers", getAllSubscriber, {
     retry: false,
   });
@@ -71,8 +56,8 @@ export default function SubscriberData() {
     },
   ];
 
-  const rows:any = data?.map((subscriber) => ({
-    id: subscriber._id,
+  const rows = data?.map((subscriber) => ({
+    _id: subscriber._id,
     email: subscriber.email,
     createdAt: format(subscriber.createdAt),
     source: subscriber.source || 'N/A',

@@ -9,16 +9,15 @@ import Link from "next/link";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {TAuthcredentialsValidator, AuthCredentialsValidator} from "@/lib/validators/account-credentials"
-
 import {toast} from "react-hot-toast";
-import {useRouter} from 'next/navigation'
 import { useMutation } from "@tanstack/react-query";
-import { registerUser } from "@/app/api/auth/route";
+import { useAuth } from "../../hook/use-auth";
 
 const Page = () => {
 
+    const {registerUser} = useAuth();
+
     const isError = false;
-    const router = useRouter();
 
     const { register, handleSubmit, formState: {errors} } = useForm<TAuthcredentialsValidator>({
         resolver: zodResolver(AuthCredentialsValidator)
@@ -26,10 +25,10 @@ const Page = () => {
 
     const mutate = useMutation({
         mutationFn: registerUser,
-        onSuccess: (data: any) => {
+        onSuccess: () => {
             toast.success('Registration successful!');
           },
-          onError: (error: any) => {
+          onError: (error) => {
             toast.error(`Registration failed: ${error.message}`);
             console.error('Error during registration:', error);
           },

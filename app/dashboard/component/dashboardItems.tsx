@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import {LayoutDashboardIcon, Pen, TrendingUp, Users, LogOutIcon, Satellite} from "lucide-react";
+import {LayoutDashboardIcon, Pen, TrendingUp, Settings, Users, LogOutIcon, Satellite} from "lucide-react";
 import { Icons } from "@/app/component/icons";
 import { useAuth } from '@/app/hook/use-auth';
 import {usePathname} from "next/navigation";
@@ -38,6 +38,11 @@ const sidebarItems = [
 function DashboardItems({bottomContent}: Props) {
     const email = localStorage.getItem('useremail');
     const sideBottomItems = [
+        {
+            url: `/dashboard/settings`,
+            icon: <Settings />,
+            name: "Settings"
+        },
         {
             url: `/subscribe?email=${email}`,
             icon: <Satellite />,

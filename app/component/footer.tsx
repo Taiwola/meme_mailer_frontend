@@ -3,28 +3,6 @@ import Link from "next/link";
 import { Icons } from "./icons";
 
 export default function Footer() {
-  const parks = [
-    {
-      name: "About Us",
-      Icon: InstagramLogoIcon,
-      Description: "Learn more about our mission and vision."
-    },
-    {
-      name: "Features",
-      Icon: TwitterLogoIcon,
-      Description: "Explore the features that make us unique."
-    },
-    {
-      name: "Customers",
-      Icon: LinkedInLogoIcon,
-      Description: "Join our growing list of satisfied customers."
-    },
-    {
-      name: "Pricing",
-      Icon: GitHubLogoIcon,
-      Description: "Check out our competitive pricing for all plans."
-    },
-  ];
 
   return (
     <footer className="bg-black text-[#bcbcbc] text-sm py-10 text-center">

@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DashboardOverviewCard from './component/dashboardOverviewCard';
 import SubcriberChat from './component/subcriberChat';
 import { Button } from '@/components/ui/button';
@@ -7,10 +7,16 @@ import { Copy, Link as LucideLink, Pen } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 
-export default function page() {
-  const username = localStorage.getItem('username');
+export default function Page() {
+ 
   const [copied, setCopied] = useState(false);
   const email = localStorage.getItem("useremail");
+  const [username, setUsername] = useState("")
+
+  useEffect(() => {
+    const name = localStorage.getItem('username');
+    setUsername(name as string)
+  }, [])
 
   const handleCopyLink = (link:string) => {
     //const link = 'http://localhost.com/subscribe?email=example@gmail.com';
@@ -26,12 +32,12 @@ export default function page() {
         Hi {username} 👋
       </h1>
       <p className='text-surface-900 text-opacity-70 text-sm'>
-        Here's how your publication is doing
+        Here&apos;s how your publication is doing
       </p>
       <div className='w-full flex'>
         <div className='w-[65%] min-h-[88vh] pr-5'>
           <br />
-          <DashboardOverviewCard clickRate={10} openRate={5} subscribers={200} />
+          <DashboardOverviewCard clickRate={10} openRate={5} />
           <SubcriberChat />
         </div>
         <div className='w-[35%] p-5'>
